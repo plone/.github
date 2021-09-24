@@ -1,0 +1,11 @@
+{
+    "name": "ZPretty",
+    "description": "ZPretty workflow action by kitconcept",
+    "categories": [
+        "Python"
+    ],
+    "filePatterns": [
+        "requirements.txt$",
+        "^setup.py"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "name": "Flake 8",
+    "description": "Flake 8 workflow action by kitconcept",
+    "categories": [
+        "Python"
+    ],
+    "filePatterns": [
+        "requirements.txt$",
+        "^setup.py"
+    ]
+}

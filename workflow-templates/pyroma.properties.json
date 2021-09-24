@@ -1,0 +1,11 @@
+{
+    "name": "Pyroma",
+    "description": "Pyroma workflow action by kitconcept",
+    "categories": [
+        "Python"
+    ],
+    "filePatterns": [
+        "requirements.txt$",
+        "^setup.py"
+    ]
+}
