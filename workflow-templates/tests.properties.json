@@ -1,0 +1,11 @@
+{
+    "name": "Tests",
+    "description": "Tests workflow action by kitconcept",
+    "categories": [
+        "Python"
+    ],
+    "filePatterns": [
+        "requirements.txt$",
+        "^setup.py"
+    ]
+}
