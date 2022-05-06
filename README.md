@@ -25,3 +25,7 @@
 
 * Plone 5.2
 * Plone 6.0 (coming soon)
+
+## Maintained
+
+![Plone Foundation](https://raw.githubusercontent.com/plone/.github/main/plone-foundation.png)
