@@ -1,0 +1,82 @@
+# This is a reusable GitHub Action workflow for testing a package PR on buildout.coredev.
+# For now (May 2022) it is an experiment, but I (Maurits) think we need it.
+# Reasons:
+# 1. The robot tests on Jenkins are flaky/unstable, which most likely is due
+#    to several robot jobs running parallel on one node.
+# 2. Python 3.10 is not working with the 'Python Shining Pandas' plugin we use
+#    on Jenkins.  We had it running with a different script for a while, but
+#    these changes got lost.  Should be restorable, but let's try GHA.
+#
+# One thing to watch out for, is that robot tests are not always reported as failures.
+# On the one hand there is config for that on Jenkins:
+# https://github.com/plone/jenkins.plone.org/issues/297
+# On the other hand I see the same problem locally:
+# https://github.com/plone/Products.CMFPlone/issues/3537
+
+# The first user of this reusable workflow is:
+# https://github.com/plone/Products.CMFPlone/pull/3540
+# See there for the few lines you need.
+# More on reusable workflows:
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+name: Test on buildout.coredev.
+# This makes us a reusable workflow:
+on: workflow_call
+# Note: the caller workflow *must* use 'on: pull_request'
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        test-command: ["bin/test --all -m test_robot"]
+        include:
+          - python-version: "3.10"
+            test-command: "bin/test"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Ubuntu setup
+      run: |
+        # needed for CMFPlone testUnicodeSplitter test:
+        sudo locale-gen nl_NL@euro
+        sudo update-locale
+        # Needed for Products.PortalTransforms WordTransformsTest:
+        sudo apt-get install -y wv
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+      # cache: 'pip' would fail because we have no requirements.txt
+    - name: "Install Python dependencies (pip)"
+      uses: "py-actions/py-dependency-install@v3"
+      with:
+        path: "https://raw.githubusercontent.com/plone/buildout.coredev/6.0/requirements.txt"
+    - name: Cache eggs
+      uses: actions/cache@v3
+      with:
+        path: eggs
+        key: eggs-${{ matrix.python-version }}-${{ runner.os }}-
+        restore-keys: |
+          eggs-${{ matrix.python-version }}-
+    - name: Run buildout
+      env:
+        package_name: ${{ github.event.repository.name }}
+        clone_url: ${{ github.event.pull_request.head.repo.clone_url }}
+        branch: ${{ github.event.pull_request.head.ref }}
+      run: |
+        echo "Using environment: package_name=$package_name clone_url=$clone_url branch=$branch"
+        # Create empty buildout.cfg, otherwise buildout gets confused.
+        touch buildout.cfg
+        buildout buildout:extends=https://raw.githubusercontent.com/plone/buildout.coredev/6.0/buildout.cfg buildout:git-clone-depth=1 buildout:auto-checkout+=$package_name sources:$package_name="git $clone_url branch=$branch" install instance test
+    - name: Run tests
+      env:
+        ROBOT_BROWSER: headlesschrome
+        # Especially in robot tests the deprecation warnings completely drown out the needed info.
+        PYTHONWARNINGS: ignore
+      run: ${{ matrix.test-command }}
+    - name: Upload parts/tests directory for debugging
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: plone-coredev-${{ matrix.python-version }}
+        path: parts/test/
