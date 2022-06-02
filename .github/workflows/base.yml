@@ -3,7 +3,7 @@
 # You should usually not call this directly, but call one of the others.
 # But if you have special considerations: sure, call this directly.
 
-name: Test on buildout.coredev.
+name: Base workflow to test on buildout.coredev.
 # This makes us a reusable workflow:
 on:
   workflow_call:

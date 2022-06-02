@@ -19,7 +19,7 @@
 # More on reusable workflows:
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
-name: Test on buildout.coredev.
+name: Workflow to test on buildout.coredev 6.0.
 # This makes us a reusable workflow:
 on: workflow_call
 # Note: the caller workflow *must* use 'on: pull_request'
