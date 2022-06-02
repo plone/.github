@@ -75,10 +75,10 @@ jobs:
         bin/test -s ${{ github.event.repository.name }} -u
         # 2. Run unit tests (without layers) of all packages:
         bin/test -u
-        # 3. Run all unit/integration/functional tests of the package itself:
-        bin/test -s ${{ github.event.repository.name }}
-        # 4. Run all unit/integration/functional tests of all packages:
-        bin/test
+        # 3. Run all integration/functional tests of the package itself:
+        bin/test -s ${{ github.event.repository.name }} -f
+        # 4. Run all integration/functional tests of all packages:
+        bin/test -f
         # 5. Run all robot tests of all packages.
         # There could be a nicer way to say "only robot tests please",
         # but the convention of putting all robot tests in test_robot.py helps.
