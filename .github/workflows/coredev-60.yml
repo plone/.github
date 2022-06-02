@@ -24,59 +24,38 @@ name: Test on buildout.coredev.
 on: workflow_call
 # Note: the caller workflow *must* use 'on: pull_request'
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
-        test-command: ["bin/test --all -m test_robot"]
-        include:
-          - python-version: "3.10"
-            test-command: "bin/test"
-    runs-on: ubuntu-latest
-    steps:
-    - name: Ubuntu setup
-      run: |
-        # needed for CMFPlone testUnicodeSplitter test:
-        sudo locale-gen nl_NL@euro
-        sudo update-locale
-        # Needed for Products.PortalTransforms WordTransformsTest:
-        sudo apt-get install -y wv
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-      # cache: 'pip' would fail because we have no requirements.txt
-    - name: "Install Python dependencies (pip)"
-      uses: "py-actions/py-dependency-install@v3"
-      with:
-        path: "https://raw.githubusercontent.com/plone/buildout.coredev/6.0/requirements.txt"
-    - name: Cache eggs
-      uses: actions/cache@v3
-      with:
-        path: eggs
-        key: eggs-${{ matrix.python-version }}-${{ runner.os }}-
-        restore-keys: |
-          eggs-${{ matrix.python-version }}-
-    - name: Run buildout
-      env:
-        package_name: ${{ github.event.repository.name }}
-        clone_url: ${{ github.event.pull_request.head.repo.clone_url }}
-        branch: ${{ github.event.pull_request.head.ref }}
-      run: |
-        echo "Using environment: package_name=$package_name clone_url=$clone_url branch=$branch"
-        # Create empty buildout.cfg, otherwise buildout gets confused.
-        touch buildout.cfg
-        buildout buildout:extends=https://raw.githubusercontent.com/plone/buildout.coredev/6.0/buildout.cfg buildout:git-clone-depth=1 buildout:auto-checkout+=$package_name sources:$package_name="git $clone_url branch=$branch" install instance test
-    - name: Run tests
-      env:
-        ROBOT_BROWSER: headlesschrome
-        # Especially in robot tests the deprecation warnings completely drown out the needed info.
-        PYTHONWARNINGS: ignore
-      run: ${{ matrix.test-command }}
-    - name: Upload parts/tests directory for debugging
-      uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: plone-coredev-${{ matrix.python-version }}
-        path: parts/test/
+  package:
+    name: Run tests of the package itself, on lowest and highest Python version.
+    uses: .github/workflows/coredev-60.yml
+    with:
+      # For the used syntax, see
+      # https://github.community/t/reusable-workflow-with-strategy-matrix/205676/8
+      python-version: >-
+        ["3.7", "3.10"]
+      # Note: if the unit tests (without layers) fail, we do not want to start the others.
+      test-command: |
+        bin/test -s ${{ github.event.repository.name }} -u
+        bin/test -s ${{ github.event.repository.name }}
+
+  test:
+    # The "package" job shouldfinish successfully first.
+    needs: package
+    name: Run unit and other standard tests of all packages.
+    uses: .github/workflows/coredev-60.yml
+    with:
+      python-version: "3.10"
+      # Note: if the unit tests (without layers) fail, we do not want to start the others.
+      test-command: |
+        bin/test -u
+        bin/test
+
+  robot:
+    # The "test" job should finish successfully first.
+    needs: test
+    name: Run robot tests of all packages.
+    uses: .github/workflows/coredev-60.yml
+    with:
+      python-version: "3.10"
+      # There could be a nicer way to say "only robot tests please",
+      # but the convention of putting all robot tests in test_robot.py helps.
+      test-command: "bin/test --all -m test_robot"

@@ -1,0 +1,77 @@
+# This is a reusable GitHub Action workflow for testing a package PR on buildout.coredev.
+# This file is the base for the other workflow files in this directory.
+# You should usually not call this directly, but call one of the others.
+# But if you have special considerations: sure, call this directly.
+
+name: Test on buildout.coredev.
+# This makes us a reusable workflow:
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python version to use. Can be a list, if you spell it correctly."
+        required: false
+        default: "3.10"
+        type: string
+      test-command:
+        required: false
+        default: "bin/test"
+        type: string
+      plone-version:
+        required: false
+        default: "6.0"
+        type: string
+# Note: the caller workflow *must* use 'on: pull_request'
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ inputs.python-version }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Ubuntu setup
+      run: |
+        # needed for CMFPlone testUnicodeSplitter test:
+        sudo locale-gen nl_NL@euro
+        sudo update-locale
+        # Needed for Products.PortalTransforms WordTransformsTest:
+        sudo apt-get install -y wv
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+      # cache: 'pip' would fail because we have no requirements.txt
+    - name: "Install Python dependencies (pip)"
+      uses: "py-actions/py-dependency-install@v3"
+      with:
+        path: "https://raw.githubusercontent.com/plone/buildout.coredev/${{ inputs.plone-version }}/requirements.txt"
+    - name: Cache eggs
+      uses: actions/cache@v3
+      with:
+        path: eggs
+        key: eggs-${{ matrix.python-version }}-${{ runner.os }}-
+        restore-keys: |
+          eggs-${{ matrix.python-version }}-
+    - name: Run buildout
+      env:
+        package_name: ${{ github.event.repository.name }}
+        clone_url: ${{ github.event.pull_request.head.repo.clone_url }}
+        branch: ${{ github.event.pull_request.head.ref }}
+      run: |
+        echo "Using environment: package_name=$package_name clone_url=$clone_url branch=$branch"
+        # Create empty buildout.cfg, otherwise buildout gets confused.
+        touch buildout.cfg
+        buildout buildout:extends=https://raw.githubusercontent.com/plone/buildout.coredev/${{ inputs.plone-version }}/buildout.cfg buildout:git-clone-depth=1 buildout:auto-checkout+=$package_name sources:$package_name="git $clone_url branch=$branch" install instance test
+    - name: Run tests
+      env:
+        ROBOT_BROWSER: headlesschrome
+        # Especially in robot tests the deprecation warnings completely drown out the needed info.
+        PYTHONWARNINGS: ignore
+      run: ${{ inputs.test-command }}
+    - name: Upload parts/tests directory for debugging, only interesting for robot tests.
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: plone-coredev-${{ matrix.python-version }}
+        path: parts/test/
