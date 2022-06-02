@@ -26,7 +26,7 @@ on: workflow_call
 jobs:
   package:
     name: Run tests of the package itself, on lowest and highest Python version.
-    uses: .github/workflows/coredev-60.yml
+    uses: ./.github/workflows/coredev-60.yml
     with:
       # For the used syntax, see
       # https://github.community/t/reusable-workflow-with-strategy-matrix/205676/8
@@ -41,7 +41,7 @@ jobs:
     # The "package" job shouldfinish successfully first.
     needs: package
     name: Run unit and other standard tests of all packages.
-    uses: .github/workflows/coredev-60.yml
+    uses: ./.github/workflows/coredev-60.yml
     with:
       python-version: "3.10"
       # Note: if the unit tests (without layers) fail, we do not want to start the others.
@@ -53,7 +53,7 @@ jobs:
     # The "test" job should finish successfully first.
     needs: test
     name: Run robot tests of all packages.
-    uses: .github/workflows/coredev-60.yml
+    uses: ./.github/workflows/coredev-60.yml
     with:
       python-version: "3.10"
       # There could be a nicer way to say "only robot tests please",
