@@ -46,7 +46,7 @@ jobs:
     - name: "Install Python dependencies (pip)"
       uses: "py-actions/py-dependency-install@v3"
       with:
-        path: "https://raw.githubusercontent.com/plone/buildout.coredev/${{ inputs.plone-version }}/requirements.txt"
+        path: "https://raw.githubusercontent.com/plone/buildout.coredev/6.0/requirements.txt"
     - name: Cache eggs
       uses: actions/cache@v3
       with:
@@ -63,7 +63,7 @@ jobs:
         echo "Using environment: package_name=$package_name clone_url=$clone_url branch=$branch"
         # Create empty buildout.cfg, otherwise buildout gets confused.
         touch buildout.cfg
-        buildout buildout:extends=https://raw.githubusercontent.com/plone/buildout.coredev/${{ inputs.plone-version }}/buildout.cfg buildout:git-clone-depth=1 buildout:auto-checkout+=$package_name sources:$package_name="git $clone_url branch=$branch" install instance test
+        buildout buildout:extends=https://raw.githubusercontent.com/plone/buildout.coredev/6.0/buildout.cfg buildout:git-clone-depth=1 buildout:auto-checkout+=$package_name sources:$package_name="git $clone_url branch=$branch" install instance test
     - name: Run tests
       env:
         ROBOT_BROWSER: headlesschrome
