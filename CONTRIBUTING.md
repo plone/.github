@@ -1,3 +1,3 @@
-# Contributing to the Plone Core code base
+# Contributing to Plone
 
-Contributors _must_ sign the [Plone Contributor Agreement](https://plone.org/foundation/contributors-agreement).
+Read [Contributing to Plone](https://6.docs.plone.org/contributing/index.html).
