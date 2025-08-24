@@ -1,5 +1,9 @@
 # License
 
+This repository is licensed under the GNU General Public License v2.0, reproduced below.
+
+## Plone licenses
+
 Plone uses several licenses for its core code and documentation.
 Choose the appropriate license for your project.
 See also [Plone License FAQ](https://plone.org/foundation/copyright-licensing-logo/license-faq).
@@ -11,7 +15,7 @@ See also [Plone License FAQ](https://plone.org/foundation/copyright-licensing-lo
 
 For convenience, the texts of the foregoing licenses are reproduced below.
 
-## GNU General Public License v2.0
+### GNU General Public License v2.0
 
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
@@ -353,7 +357,7 @@ consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.
 
-## Zope Public License (ZPL) Version 2.1
+### Zope Public License (ZPL) Version 2.1
 
 Zope Public License (ZPL) Version 2.1
 
@@ -400,7 +404,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-## MIT License
+### MIT License
 
 MIT License
 
@@ -424,7 +428,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Creative Commons Attribution 4.0 International Public License
+### Creative Commons Attribution 4.0 International Public License
 
 Attribution 4.0 International
 
