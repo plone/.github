@@ -1,4 +1,6 @@
-blank_issues_enabled: false
+# Set to false to force a choice. May annoy maintainers, but will allow
+# automatic application of labels according to the selection.
+blank_issues_enabled: true
 contact_links:
   - name: Get support
     url: https://community.plone.org/
@@ -6,3 +8,6 @@ contact_links:
   - name: Chat
     url: https://discord.gg/zFY3EBbjaj
     about: Chat on Discord.
+  - name: Report a security issue
+    url: https://plone.org/security/report
+    about: Report a security issue.
