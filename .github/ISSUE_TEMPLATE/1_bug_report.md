@@ -6,6 +6,11 @@ labels: ['01 type: bug', '30 needs: triage']
 assignees: ''
 ---
 
+> [!CAUTION]
+> Do not file security issues in this tracker.
+> Send email to security@plone.org instead.
+> See [Report a security issue](https://plone.org/security/report).
+
 **Describe the bug**
 
 A clear and concise description of what the bug is.
